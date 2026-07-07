@@ -127,16 +127,16 @@
 
     .home-btn {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  width: 42px;
-  height: 42px;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: clamp(40px, 9vw, 48px);
+  height: clamp(40px, 9vw, 48px);
   background: red;
   color: white;
   text-decoration: none;
-  font-size: 32px;
+  font-size: clamp(30px, 7vw, 38px);
   font-weight: bold;
-  line-height: 39px;
+  line-height: clamp(36px, 8vw, 43px);
   text-align: center;
   border-radius: 8px;
   z-index: 9999;
