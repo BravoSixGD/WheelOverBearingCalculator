@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engine Mode Time Calculator</title>
+  <link rel="stylesheet" href="assets/theme.css">
+
+  <style>
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .output-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-main);
+      border-radius: 12px;
+      padding: 14px;
+      line-height: 1.5;
+    }
+
+    .output-label {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .output-value {
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: bold;
+      color: var(--text-main);
+    }
+
+    .small-note {
+      margin-top: 12px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 760px) {
+      .input-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .output-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a href="index.html" class="home-btn">×</a>
+
+  <div class="app-container">
+    <h1 class="page-title">Engine Mode Time Calculator</h1>
+
+    <div class="card">
+      <div class="card-title">Inputs</div>
+
+      <div class="input-grid">
+        <div>
+          <label>K1 Maximum permissible speed</label>
+          <input id="k1" type="number" inputmode="decimal" step="0.1" placeholder="18">
+        </div>
+
+        <div>
+          <label>K2 Minimum comfortable speed</label>
+          <input id="k2" type="number" inputmode="decimal" step="0.1" placeholder="12">
+        </div>
+
+        <div>
+          <label>Distance from A to B in NM</label>
+          <input id="distance" type="number" inputmode="decimal" step="0.1" placeholder="150">
+        </div>
+
+        <div>
+          <label>Total time available in Hrs</label>
+          <input id="totalTime" type="number" inputmode="decimal" step="0.1" placeholder="10">
+        </div>
+      </div>
+
+      <button id="goBtn" class="go-btn" onclick="calculate()">GO</button>
+
+      <div id="result" class="result">
+        Enter values to calculate engine running time.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k1Input = document.getElementById("k1");
+    const k2Input = document.getElementById("k2");
+    const distanceInput = document.getElementById("distance");
+    const totalTimeInput = document.getElementById("totalTime");
+    const goBtn = document.getElementById("goBtn");
+    const result = document.getElementById("result");
+
+    document.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", updateButton);
+    });
+
+    function getValues() {
+      return {
+        k1: Number(k1Input.value),
+        k2: Number(k2Input.value),
+        distance: Number(distanceInput.value),
+        totalTime: Number(totalTimeInput.value)
+      };
+    }
+
+    function getValidationMessage() {
+      const { k1, k2, distance, totalTime } = getValues();
+
+      if (!Number.isFinite(k1) || k1 <= 0) {
+        return "Recheck K1 maximum permissible speed.";
+      }
+
+      if (!Number.isFinite(k2) || k2 <= 0) {
+        return "Recheck K2 minimum comfortable speed.";
+      }
+
+      if (k1 <= k2) {
+        return "Recheck speeds. K1 must be greater than K2.";
+      }
+
+      if (!Number.isFinite(distance) || distance <= 0) {
+        return "Recheck distance.";
+      }
+
+      if (!Number.isFinite(totalTime) || totalTime <= 0) {
+        return "Recheck total time available.";
+      }
+
+      const requiredAverageSpeed = distance / totalTime;
+
+      if (requiredAverageSpeed > k1) {
+        return "Recheck the question. Even K1 speed is not enough to cover the distance in given time.";
+      }
+
+      return "";
+    }
+
+    function isValid() {
+      return getValidationMessage() === "";
+    }
+
+    function updateButton() {
+      if (isValid()) {
+        goBtn.classList.add("valid");
+      } else {
+        goBtn.classList.remove("valid");
+      }
+    }
+
+    function formatDuration(hours) {
+      const sign = hours < 0 ? "-" : "";
+      const absHours = Math.abs(hours);
+
+      let h = Math.floor(absHours);
+      let m = Math.round((absHours - h) * 60);
+
+      if (m === 60) {
+        h += 1;
+        m = 0;
+      }
+
+      return `${sign}${absHours.toFixed(2)} hrs (${sign}${h} h ${String(m).padStart(2, "0")} min)`;
+    }
+
+    function formatNumber(value) {
+      return Number(value).toFixed(2);
+    }
+
+    function calculate() {
+      const validationMessage = getValidationMessage();
+
+      if (validationMessage !== "") {
+        result.innerHTML = `<span class="warning">${validationMessage}</span>`;
+        updateButton();
+        return;
+      }
+
+      const { k1, k2, distance, totalTime } = getValues();
+
+      const requiredAverageSpeed = distance / totalTime;
+      const t1 = (distance - (k2 * totalTime)) / (k1 - k2);
+      const tolerance = 0.000001;
+
+      let output = "";
+
+      if (Math.abs(t1) <= tolerance) {
+        output = `
+          <div class="success">You are just in time.</div>
+
+          <div class="output-grid">
+            <div class="output-box">
+              <div class="output-label">Both engines</div>
+              <div class="output-value">0 h 00 min</div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">Single engine</div>
+              <div class="output-value">${formatDuration(totalTime)}</div>
+            </div>
+          </div>
+
+          <div class="small-note">
+            Start now at K2 speed. No both-engine running required.
+            <br>
+            Required average speed: ${formatNumber(requiredAverageSpeed)} kn
+          </div>
+        `;
+      } else if (t1 < 0) {
+        const timeRequiredAtK2 = distance / k2;
+        const spareTime = totalTime - timeRequiredAtK2;
+
+        output = `
+          <div class="success">No both-engine running required.</div>
+
+          <div class="output-grid">
+            <div class="output-box">
+              <div class="output-label">Both engines</div>
+              <div class="output-value">0 h 00 min</div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">Single engine required</div>
+              <div class="output-value">${formatDuration(timeRequiredAtK2)}</div>
+            </div>
+          </div>
+
+          <div class="small-note">
+            At K2 speed, you will have ${formatDuration(spareTime)} extra in hand.
+            <br>
+            Required average speed: ${formatNumber(requiredAverageSpeed)} kn
+          </div>
+        `;
+      } else {
+        const t2 = totalTime - t1;
+        const distanceBothEngines = k1 * t1;
+        const distanceSingleEngine = k2 * t2;
+
+        output = `
+          <div class="success">Engine plan calculated.</div>
+
+          <div class="output-grid">
+            <div class="output-box">
+              <div class="output-label">Run both engines for T1</div>
+              <div class="output-value">${formatDuration(t1)}</div>
+            </div>
+
+            <div class="output-box">
+              <div class="output-label">Then run single engine for T2</div>
+              <div class="output-value">${formatDuration(t2)}</div>
+            </div>
+          </div>
+
+          <div class="small-note">
+            Distance covered on both engines: ${formatNumber(distanceBothEngines)} NM
+            <br>
+            Distance covered on single engine: ${formatNumber(distanceSingleEngine)} NM
+            <br>
+            Required average speed: ${formatNumber(requiredAverageSpeed)} kn
+          </div>
+        `;
+      }
+
+      result.innerHTML = output;
+      updateButton();
+    }
+
+    updateButton();
+  </script>
+</body>
+</html>
