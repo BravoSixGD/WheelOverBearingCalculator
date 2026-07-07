@@ -2,71 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
+  <!-- Important for mobile/tablet/PC responsiveness -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Navigator's Assistant</title>
 
   <style>
     * {
       box-sizing: border-box;
       font-family: Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      min-height: 100%;
     }
 
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100svh;
       background: #101820;
       color: white;
-      padding: 20px;
+      padding: max(16px, env(safe-area-inset-top))
+               max(16px, env(safe-area-inset-right))
+               max(16px, env(safe-area-inset-bottom))
+               max(16px, env(safe-area-inset-left));
     }
 
     .container {
-      max-width: 700px;
+      width: min(100%, 900px);
       margin: 0 auto;
-      padding-top: 30px;
+      padding-top: clamp(20px, 5vh, 50px);
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 8px;
-      font-size: 30px;
+      margin: 0 0 8px;
+      font-size: clamp(26px, 6vw, 42px);
+      line-height: 1.15;
     }
 
     .subtitle {
       text-align: center;
       color: #cfcfcf;
-      margin-bottom: 30px;
-      font-size: 15px;
+      margin-bottom: clamp(24px, 5vh, 42px);
+      font-size: clamp(14px, 3vw, 18px);
     }
 
     .section-title {
       margin-top: 28px;
       margin-bottom: 12px;
-      font-size: 16px;
+      font-size: clamp(15px, 3vw, 18px);
       color: #d0d0d0;
       border-bottom: 1px solid #333;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
     }
 
     .menu {
       display: grid;
-      gap: 14px;
+      grid-template-columns: 1fr;
+      gap: clamp(12px, 2vw, 18px);
     }
 
     .menu a {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
       text-decoration: none;
       background: #1f6feb;
       color: white;
-      padding: 18px;
-      border-radius: 12px;
+      padding: clamp(16px, 3vw, 22px);
+      border-radius: 14px;
       text-align: center;
-      font-size: 18px;
+      font-size: clamp(17px, 3.5vw, 22px);
       font-weight: bold;
       box-shadow: 0 4px 10px rgba(0,0,0,0.35);
     }
 
     .menu a:active {
       transform: scale(0.98);
+    }
+
+    /* Tablets, laptops, landscape phones */
+    @media (min-width: 700px) {
+      .menu {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Landscape orientation optimization */
+    @media (orientation: landscape) and (max-height: 500px) {
+      body {
+        padding: 12px 20px;
+      }
+
+      .container {
+        padding-top: 10px;
+      }
+
+      h1 {
+        font-size: clamp(24px, 4vw, 34px);
+      }
+
+      .subtitle {
+        margin-bottom: 18px;
+      }
+
+      .menu a {
+        min-height: 50px;
+        padding: 14px;
+        font-size: clamp(16px, 2.5vw, 20px);
+      }
     }
   </style>
 </head>
