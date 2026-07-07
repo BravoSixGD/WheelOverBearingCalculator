@@ -3,425 +3,606 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Height of Tide Calculator</title>
+  <title>HOT and TOT Calculator</title>
 
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
       margin: 0;
-      padding: 20px;
+      min-height: 100svh;
+      background: #101820;
+      color: white;
+      padding: max(16px, env(safe-area-inset-top))
+               max(16px, env(safe-area-inset-right))
+               max(16px, env(safe-area-inset-bottom))
+               max(16px, env(safe-area-inset-left));
+    }
+
+    .home-btn {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      width: clamp(40px, 9vw, 48px);
+      height: clamp(40px, 9vw, 48px);
+      background: red;
+      color: white;
+      text-decoration: none;
+      font-size: clamp(30px, 7vw, 38px);
+      font-weight: bold;
+      line-height: clamp(36px, 8vw, 43px);
+      text-align: center;
+      border-radius: 8px;
+      z-index: 9999;
     }
 
     .container {
-      max-width: 900px;
-      margin: auto;
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding-top: clamp(20px, 5vh, 50px);
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
+      font-size: clamp(24px, 6vw, 40px);
+      margin: 0 52px 24px;
     }
 
-    .note {
-      text-align: center;
-      color: #555;
-      margin-bottom: 25px;
+    .card {
+      background: #17212b;
+      border: 1px solid #263544;
+      border-radius: 16px;
+      padding: clamp(16px, 3vw, 24px);
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
-    .grid {
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(18px, 4vw, 24px);
+      color: #ffffff;
+    }
+
+    .tide-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      grid-template-columns: 80px 1fr 1fr;
+      gap: 10px;
+      align-items: center;
     }
 
-    .box {
-      border: 1px solid #ccc;
-      padding: 15px;
-      border-radius: 8px;
-      background: #fafafa;
+    .grid-head {
+      color: #bfc7cf;
+      font-size: 14px;
+      font-weight: bold;
     }
 
     label {
-      display: block;
-      margin-top: 12px;
       font-weight: bold;
+      color: #e8e8e8;
     }
 
     input {
       width: 100%;
-      padding: 9px;
-      margin-top: 5px;
-      box-sizing: border-box;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #3b4b5a;
+      background: #0e1620;
+      color: white;
+      font-size: 17px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1f6feb;
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .go-btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      background: #b00020;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .go-btn.ready {
+      background: #0a8f3c;
+    }
+
+    .result {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #0e1620;
+      border: 1px solid #2b3a48;
+      min-height: 52px;
+      line-height: 1.5;
       font-size: 16px;
     }
 
-    button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background: #1f6feb;
-      color: white;
-    }
-
-    button:hover {
-      background: #1558bd;
-    }
-
-    #result {
-      margin-top: 25px;
-      padding: 18px;
-      border-radius: 8px;
-      background: #eef7ee;
-      border: 1px solid #8bc98b;
-      display: none;
-      line-height: 1.6;
+    .success {
+      color: #ffffff;
     }
 
     .error {
-      background: #fff0f0 !important;
-      border-color: #d66 !important;
-      color: #900;
+      color: #ffb3b3;
+      font-weight: bold;
     }
 
-    .final {
-      font-size: 22px;
-      font-weight: bold;
-      color: #064b06;
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
     }
-    
-    .home-btn {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: max(12px, env(safe-area-inset-right));
-  width: clamp(40px, 9vw, 48px);
-  height: clamp(40px, 9vw, 48px);
-  background: red;
-  color: white;
-  text-decoration: none;
-  font-size: clamp(30px, 7vw, 38px);
-  font-weight: bold;
-  line-height: clamp(36px, 8vw, 43px);
-  text-align: center;
-  border-radius: 8px;
-  z-index: 9999;
-}
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .small {
+      color: #bfc7cf;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 760px) {
+      .calculator-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 520px) {
+      .container {
+        padding-top: 8px;
+      }
+
+      h1 {
+        font-size: 26px;
+        margin-bottom: 14px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      input {
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 
 <body>
-<a href="index.html" class="home-btn">×</a>
-  <div class="container">
-    <h1>Height of Tide Calculator</h1>
-    <p class="note">
-      Enter tide-table times in 24-hour format, for example 0345, 1410, 2355.
-      Heights should be entered in metres.
-    </p>
+  <a href="index.html" class="home-btn" aria-label="Back to Home">×</a>
 
-    <div class="grid">
-      <div class="box">
-        <h2>High Waters</h2>
+  <main class="container">
+    <h1>HOT and TOT Calculator</h1>
 
-        <label>HW 1 Time</label>
-        <input type="text" id="hw1Time" placeholder="Example: 0430">
+    <section class="card">
+      <h2>Tide Table Entries</h2>
 
-        <label>HW 1 Height</label>
-        <input type="text" id="hw1Height" placeholder="Example: 5.8">
+      <div class="tide-grid">
+        <div></div>
+        <div class="grid-head">Time</div>
+        <div class="grid-head">Height</div>
 
-        <label>HW 2 Time</label>
-        <input type="text" id="hw2Time" placeholder="Example: 1655">
+        <label>HW 1</label>
+        <input id="hw1_time" type="text" inputmode="numeric" placeholder="0530">
+        <input id="hw1_height" type="number" step="0.01" placeholder="4.20">
 
-        <label>HW 2 Height</label>
-        <input type="text" id="hw2Height" placeholder="Example: 5.5">
+        <label>LW 1</label>
+        <input id="lw1_time" type="text" inputmode="numeric" placeholder="1130">
+        <input id="lw1_height" type="number" step="0.01" placeholder="1.10">
+
+        <label>HW 2</label>
+        <input id="hw2_time" type="text" inputmode="numeric" placeholder="1745">
+        <input id="hw2_height" type="number" step="0.01" placeholder="4.50">
+
+        <label>LW 2</label>
+        <input id="lw2_time" type="text" inputmode="numeric" placeholder="2355">
+        <input id="lw2_height" type="number" step="0.01" placeholder="0.90">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Calculators</h2>
+
+      <div class="calculator-grid">
+        <div class="field">
+          <label for="wanted_time">Height of Tide at Time</label>
+          <input id="wanted_time" type="text" inputmode="numeric" placeholder="Enter time e.g. 1430">
+        </div>
+
+        <div class="field">
+          <label for="wanted_height">Time of Tide for Height</label>
+          <input id="wanted_height" type="number" step="0.01" placeholder="Enter height e.g. 2.70">
+        </div>
       </div>
 
-      <div class="box">
-        <h2>Low Waters</h2>
+      <button id="goBtn" class="go-btn" onclick="calculateAll()">GO</button>
 
-        <label>LW 1 Time</label>
-        <input type="text" id="lw1Time" placeholder="Example: 1030">
+      <div id="hotResult" class="result">Height of tide result will appear here.</div>
+      <div id="totResult" class="result">Time of tide result will appear here.</div>
 
-        <label>LW 1 Height</label>
-        <input type="text" id="lw1Height" placeholder="Example: 1.2">
-
-        <label>LW 2 Time</label>
-        <input type="text" id="lw2Time" placeholder="Example: 2240">
-
-        <label>LW 2 Height</label>
-        <input type="text" id="lw2Height" placeholder="Example: 1.5">
+      <div class="small">
+        Time format accepted: 0530 or 05:30. Height should be in metres.
       </div>
-    </div>
-
-    <div class="box" style="margin-top: 20px;">
-      <h2>Required Time</h2>
-
-      <label>Time for which height of tide is required</label>
-      <input type="text" id="requiredTime" placeholder="Example: 1230">
-
-      <button onclick="calculateHeight()">GO</button>
-    </div>
-
-    <div id="result"></div>
-  </div>
-
+    </section>
+  </main>
 
   <script>
-    /*
-      Interpolation factors based on the tide interpolation table columns.
-
-      Columns represent interval from nearest HW/LW as percentage of duration:
-      0%, 5%, 10%, 15%, ... 50%
-
-      Correction = Range × Factor
-
-      If interval falls between two columns, linear interpolation is applied.
-    */
-
-    const factorTable = [
-      { p: 0.00, f: 0.000 },
-      { p: 0.05, f: 0.006 },
-      { p: 0.10, f: 0.024 },
-      { p: 0.15, f: 0.054 },
-      { p: 0.20, f: 0.095 },
-      { p: 0.25, f: 0.146 },
-      { p: 0.30, f: 0.206 },
-      { p: 0.35, f: 0.273 },
-      { p: 0.40, f: 0.345 },
-      { p: 0.45, f: 0.422 },
-      { p: 0.50, f: 0.500 }
+    const eventDefs = [
+      { id: "hw1", type: "HW", label: "HW 1" },
+      { id: "lw1", type: "LW", label: "LW 1" },
+      { id: "hw2", type: "HW", label: "HW 2" },
+      { id: "lw2", type: "LW", label: "LW 2" }
     ];
 
-    function parseTime(value) {
-      value = value.trim().replace(":", "");
+    const goBtn = document.getElementById("goBtn");
+    const hotResult = document.getElementById("hotResult");
+    const totResult = document.getElementById("totResult");
 
-      if (!/^\d{3,4}$/.test(value)) {
-        return null;
+    document.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", updateButtonState);
+    });
+
+    function parseTimeToMinutes(value) {
+      const raw = String(value).trim();
+
+      if (raw === "") return null;
+
+      let hours;
+      let minutes;
+
+      if (raw.includes(":")) {
+        const parts = raw.split(":");
+        if (parts.length !== 2) return null;
+
+        hours = Number(parts[0]);
+        minutes = Number(parts[1]);
+      } else {
+        if (!/^\d{3,4}$/.test(raw)) return null;
+
+        const padded = raw.padStart(4, "0");
+        hours = Number(padded.slice(0, 2));
+        minutes = Number(padded.slice(2, 4));
       }
 
-      if (value.length === 3) {
-        value = "0" + value;
-      }
-
-      const hours = Number(value.slice(0, 2));
-      const minutes = Number(value.slice(2, 4));
-
-      if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-        return null;
-      }
+      if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
+      if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
 
       return hours * 60 + minutes;
     }
 
     function parseHeight(value) {
-      const h = Number(value.trim());
-      if (isNaN(h)) return null;
-      return h;
-    }
+      const raw = String(value).trim();
+      if (raw === "") return null;
 
-    function formatMinutes(totalMinutes) {
-      const h = Math.floor(totalMinutes / 60);
-      const m = totalMinutes % 60;
-      return `${h}h ${String(m).padStart(2, "0")}m`;
+      const number = Number(raw);
+      if (!Number.isFinite(number)) return null;
+
+      return number;
     }
 
     function formatClock(totalMinutes) {
-      const h = Math.floor(totalMinutes / 60);
-      const m = totalMinutes % 60;
-      return `${String(h).padStart(2, "0")}${String(m).padStart(2, "0")}`;
+      let minutes = Math.round(totalMinutes);
+      minutes = ((minutes % 1440) + 1440) % 1440;
+
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+
+      return String(h).padStart(2, "0") + String(m).padStart(2, "0");
     }
 
-    function showResult(html, isError = false) {
-      const result = document.getElementById("result");
-      result.innerHTML = html;
-      result.style.display = "block";
+    function formatClockWithDay(totalMinutes) {
+      if (totalMinutes < 0) {
+        return formatClock(totalMinutes) + " previous day";
+      }
 
-      if (isError) {
-        result.classList.add("error");
+      if (totalMinutes >= 1440) {
+        return formatClock(totalMinutes) + " next day";
+      }
+
+      return formatClock(totalMinutes);
+    }
+
+    function formatDuration(minutes) {
+      const rounded = Math.round(minutes);
+      const h = Math.floor(rounded / 60);
+      const m = rounded % 60;
+
+      return `${h}h ${String(m).padStart(2, "0")}m`;
+    }
+
+    function clamp(value, minimum, maximum) {
+      return Math.min(Math.max(value, minimum), maximum);
+    }
+
+    function readEvents() {
+      const events = eventDefs.map(def => {
+        const time = parseTimeToMinutes(document.getElementById(def.id + "_time").value);
+        const height = parseHeight(document.getElementById(def.id + "_height").value);
+
+        if (time === null) {
+          throw new Error(`${def.label} time is invalid.`);
+        }
+
+        if (height === null) {
+          throw new Error(`${def.label} height is invalid.`);
+        }
+
+        return {
+          type: def.type,
+          label: def.label,
+          time,
+          height
+        };
+      });
+
+      const sorted = events.sort((a, b) => a.time - b.time);
+
+      const usedTimes = new Set();
+      for (const event of sorted) {
+        if (usedTimes.has(event.time)) {
+          throw new Error("Two tide entries cannot have the same time.");
+        }
+        usedTimes.add(event.time);
+      }
+
+      return sorted;
+    }
+
+    function cloneEvent(event, timeShift) {
+      return {
+        type: event.type,
+        label: event.label,
+        time: event.time + timeShift,
+        height: event.height
+      };
+    }
+
+    function buildIntervals(events) {
+      const intervals = [];
+      const first = events[0];
+      const last = events[events.length - 1];
+
+      intervals.push({
+        start: cloneEvent(last, -1440),
+        end: cloneEvent(first, 0)
+      });
+
+      for (let i = 0; i < events.length - 1; i++) {
+        intervals.push({
+          start: cloneEvent(events[i], 0),
+          end: cloneEvent(events[i + 1], 0)
+        });
+      }
+
+      intervals.push({
+        start: cloneEvent(last, 0),
+        end: cloneEvent(first, 1440)
+      });
+
+      return intervals.filter(interval => interval.end.time > interval.start.time);
+    }
+
+    function heightAtTime(interval, wantedMinutes) {
+      const duration = interval.end.time - interval.start.time;
+      const elapsed = wantedMinutes - interval.start.time;
+      const fraction = clamp(elapsed / duration, 0, 1);
+
+      const range = Math.abs(interval.end.height - interval.start.height);
+      const correction = range * (1 - Math.cos(Math.PI * fraction)) / 2;
+
+      if (interval.end.height > interval.start.height) {
+        return interval.start.height + correction;
+      }
+
+      return interval.start.height - correction;
+    }
+
+    function timeForHeight(interval, wantedHeight) {
+      const startHeight = interval.start.height;
+      const endHeight = interval.end.height;
+      const range = Math.abs(endHeight - startHeight);
+
+      if (range === 0) return null;
+
+      const lowest = Math.min(startHeight, endHeight);
+      const highest = Math.max(startHeight, endHeight);
+
+      if (wantedHeight < lowest - 0.000001 || wantedHeight > highest + 0.000001) {
+        return null;
+      }
+
+      let correction;
+
+      if (endHeight > startHeight) {
+        correction = wantedHeight - startHeight;
       } else {
-        result.classList.remove("error");
-      }
-    }
-
-    function getInterpolatedFactor(intervalFromNearest, duration) {
-      const actualPercentage = intervalFromNearest / duration;
-
-      if (actualPercentage <= 0) return 0;
-      if (actualPercentage >= 0.5) return 0.5;
-
-      let lower = factorTable[0];
-      let upper = factorTable[factorTable.length - 1];
-
-      for (let i = 0; i < factorTable.length - 1; i++) {
-        if (
-          actualPercentage >= factorTable[i].p &&
-          actualPercentage <= factorTable[i + 1].p
-        ) {
-          lower = factorTable[i];
-          upper = factorTable[i + 1];
-          break;
-        }
+        correction = startHeight - wantedHeight;
       }
 
-      const proportion =
-        (actualPercentage - lower.p) / (upper.p - lower.p);
+      const ratio = clamp(correction / range, 0, 1);
+      const fraction = Math.acos(1 - 2 * ratio) / Math.PI;
 
-      const interpolatedFactor =
-        lower.f + proportion * (upper.f - lower.f);
-
-      return interpolatedFactor;
+      return interval.start.time + fraction * (interval.end.time - interval.start.time);
     }
 
-    function calculateHeight() {
-      const tides = [
-        {
-          type: "HW",
-          name: "HW 1",
-          time: parseTime(document.getElementById("hw1Time").value),
-          height: parseHeight(document.getElementById("hw1Height").value)
-        },
-        {
-          type: "HW",
-          name: "HW 2",
-          time: parseTime(document.getElementById("hw2Time").value),
-          height: parseHeight(document.getElementById("hw2Height").value)
-        },
-        {
-          type: "LW",
-          name: "LW 1",
-          time: parseTime(document.getElementById("lw1Time").value),
-          height: parseHeight(document.getElementById("lw1Height").value)
-        },
-        {
-          type: "LW",
-          name: "LW 2",
-          time: parseTime(document.getElementById("lw2Time").value),
-          height: parseHeight(document.getElementById("lw2Height").value)
-        }
-      ];
+    function intervalText(interval) {
+      const direction = interval.end.height > interval.start.height ? "Rising" : "Falling";
+      const range = Math.abs(interval.end.height - interval.start.height);
 
-      const requiredTime = parseTime(
-        document.getElementById("requiredTime").value
+      return `${direction}, ${interval.start.type} ${formatClockWithDay(interval.start.time)} to ${interval.end.type} ${formatClockWithDay(interval.end.time)}, Range ${range.toFixed(2)} m`;
+    }
+
+    function calculateAll() {
+      hotResult.innerHTML = "Height of tide result will appear here.";
+      totResult.innerHTML = "Time of tide result will appear here.";
+
+      let events;
+      let intervals;
+
+      try {
+        events = readEvents();
+        intervals = buildIntervals(events);
+      } catch (error) {
+        hotResult.innerHTML = `<div class="error">${error.message}</div>`;
+        totResult.innerHTML = `<div class="error">${error.message}</div>`;
+        updateButtonState();
+        return;
+      }
+
+      calculateHOT(intervals);
+      calculateTOT(intervals);
+      updateButtonState();
+    }
+
+    function calculateHOT(intervals) {
+      const wantedTimeRaw = document.getElementById("wanted_time").value.trim();
+
+      if (wantedTimeRaw === "") {
+        hotResult.innerHTML = "Height of tide result will appear here.";
+        return;
+      }
+
+      const wantedMinutes = parseTimeToMinutes(wantedTimeRaw);
+
+      if (wantedMinutes === null) {
+        hotResult.innerHTML = `<div class="error">Enter valid time for Height of Tide.</div>`;
+        return;
+      }
+
+      const interval = intervals.find(item =>
+        wantedMinutes >= item.start.time && wantedMinutes <= item.end.time
       );
 
-      if (requiredTime === null) {
-        showResult("Invalid required time. Enter time like 0345 or 1430.", true);
+      if (!interval) {
+        hotResult.innerHTML = `<div class="error">The entered time is not between the given tide periods.</div>`;
         return;
       }
 
-      for (const tide of tides) {
-        if (tide.time === null || tide.height === null) {
-          showResult("Please enter all HW/LW times and heights correctly.", true);
-          return;
-        }
-      }
+      const height = heightAtTime(interval, wantedMinutes);
 
-      tides.sort((a, b) => a.time - b.time);
-
-      let startTide = null;
-      let endTide = null;
-
-      for (let i = 0; i < tides.length - 1; i++) {
-        if (requiredTime >= tides[i].time && requiredTime <= tides[i + 1].time) {
-          startTide = tides[i];
-          endTide = tides[i + 1];
-          break;
-        }
-      }
-
-      if (!startTide || !endTide) {
-        showResult(
-          "Required time is outside the entered tide interval. Enter the previous or next day's tide also if the time lies before the first tide or after the last tide.",
-          true
-        );
-        return;
-      }
-
-      if (startTide.type === endTide.type) {
-        showResult(
-          "The selected interval is invalid because two neighbouring tides are both HW or both LW.",
-          true
-        );
-        return;
-      }
-
-      if (requiredTime === startTide.time) {
-        showResult(`
-          Exact tide time entered.<br>
-          <span class="final">Height of Tide = ${startTide.height.toFixed(2)} m</span>
-        `);
-        return;
-      }
-
-      if (requiredTime === endTide.time) {
-        showResult(`
-          Exact tide time entered.<br>
-          <span class="final">Height of Tide = ${endTide.height.toFixed(2)} m</span>
-        `);
-        return;
-      }
-
-      const duration = endTide.time - startTide.time;
-      const intervalFromStart = requiredTime - startTide.time;
-      const intervalFromEnd = endTide.time - requiredTime;
-
-      const nearestTide =
-        intervalFromStart <= intervalFromEnd ? startTide : endTide;
-
-      const intervalFromNearest =
-        Math.min(intervalFromStart, intervalFromEnd);
-
-      const highWater =
-        startTide.type === "HW" ? startTide : endTide;
-
-      const lowWater =
-        startTide.type === "LW" ? startTide : endTide;
-
-      const range = highWater.height - lowWater.height;
-
-      if (range < 0) {
-        showResult("Invalid heights. HW height should be greater than LW height.", true);
-        return;
-      }
-
-      const factor = getInterpolatedFactor(intervalFromNearest, duration);
-      const correction = range * factor;
-
-      let finalHeight;
-
-      if (nearestTide.type === "LW") {
-        finalHeight = nearestTide.height + correction;
-      } else {
-        finalHeight = nearestTide.height - correction;
-      }
-
-      const html = `
-        <b>Selected tide interval:</b><br>
-        ${startTide.name} / ${startTide.type}: ${formatClock(startTide.time)}, Height ${startTide.height.toFixed(2)} m<br>
-        ${endTide.name} / ${endTide.type}: ${formatClock(endTide.time)}, Height ${endTide.height.toFixed(2)} m<br><br>
-
-        <b>Duration of rise/fall:</b> ${formatMinutes(duration)}<br>
-        <b>Required time:</b> ${formatClock(requiredTime)}<br>
-        <b>Nearest tide used:</b> ${nearestTide.name} / ${nearestTide.type}<br>
-        <b>Interval from nearest HW/LW:</b> ${formatMinutes(intervalFromNearest)}<br>
-        <b>Range of tide:</b> ${range.toFixed(2)} m<br>
-        <b>Interpolated table factor:</b> ${factor.toFixed(4)}<br>
-        <b>Correction:</b> ${correction.toFixed(2)} m<br><br>
-
-        <span class="final">Height of Tide = ${finalHeight.toFixed(2)} m</span>
+      hotResult.innerHTML = `
+        <div class="success">
+          <strong>Height of Tide at ${formatClock(wantedMinutes)}:</strong>
+          ${height.toFixed(2)} m
+          <div class="small">${intervalText(interval)}</div>
+        </div>
       `;
-
-      showResult(html);
     }
-  </script>
 
+    function calculateTOT(intervals) {
+      const wantedHeightRaw = document.getElementById("wanted_height").value.trim();
+
+      if (wantedHeightRaw === "") {
+        totResult.innerHTML = "Time of tide result will appear here.";
+        return;
+      }
+
+      const wantedHeight = parseHeight(wantedHeightRaw);
+
+      if (wantedHeight === null) {
+        totResult.innerHTML = `<div class="error">Enter valid height for Time of Tide.</div>`;
+        return;
+      }
+
+      const results = [];
+      const seen = new Set();
+
+      for (const interval of intervals) {
+        const tideTime = timeForHeight(interval, wantedHeight);
+
+        if (tideTime === null) continue;
+        if (tideTime < 0) continue;
+
+        const roundedTime = Math.round(tideTime);
+        const key = roundedTime + "-" + interval.start.time + "-" + interval.end.time;
+
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        results.push({
+          time: tideTime,
+          interval
+        });
+      }
+
+      if (results.length === 0) {
+        totResult.innerHTML = `
+          <div class="error">
+            Height ${wantedHeight.toFixed(2)} m does not occur between the given tide periods.
+          </div>
+        `;
+        return;
+      }
+
+      results.sort((a, b) => a.time - b.time);
+
+      const listItems = results.map(result => {
+        const elapsedFromStart = result.time - result.interval.start.time;
+
+        return `
+          <li>
+            <strong>${formatClockWithDay(result.time)}</strong>
+            <div class="small">
+              ${intervalText(result.interval)}<br>
+              Interval from ${result.interval.start.type}: ${formatDuration(elapsedFromStart)}
+            </div>
+          </li>
+        `;
+      }).join("");
+
+      totResult.innerHTML = `
+        <div class="success">
+          <strong>Time of Tide for ${wantedHeight.toFixed(2)} m:</strong>
+          <ul>${listItems}</ul>
+        </div>
+      `;
+    }
+
+    function updateButtonState() {
+      let commonInputsValid = true;
+
+      try {
+        readEvents();
+      } catch {
+        commonInputsValid = false;
+      }
+
+      const wantedTimeRaw = document.getElementById("wanted_time").value.trim();
+      const wantedHeightRaw = document.getElementById("wanted_height").value.trim();
+
+      const wantedTimeValid = wantedTimeRaw !== "" && parseTimeToMinutes(wantedTimeRaw) !== null;
+      const wantedHeightValid = wantedHeightRaw !== "" && parseHeight(wantedHeightRaw) !== null;
+
+      if (commonInputsValid && (wantedTimeValid || wantedHeightValid)) {
+        goBtn.classList.add("ready");
+      } else {
+        goBtn.classList.remove("ready");
+      }
+    }
+
+    updateButtonState();
+  </script>
 </body>
 </html>
