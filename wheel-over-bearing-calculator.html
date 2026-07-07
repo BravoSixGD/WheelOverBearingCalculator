@@ -46,13 +46,6 @@
       color: #e9f1f7;
     }
 
-    .note {
-      margin-top: 12px;
-      color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
     @media (min-width: 760px) {
       .input-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -179,15 +172,20 @@
     function buildDistances(legLength) {
       const distances = [];
 
-      for (let d = Math.floor(legLength); d >= 0; d--) {
+      distances.push(legLength);
+
+      for (let d = Math.floor(legLength); d >= 1; d--) {
         distances.push(d);
       }
 
-      if (!distances.includes(legLength)) {
-        distances.unshift(legLength);
+      if (legLength >= 0.5) {
+        distances.push(0.5);
       }
 
-      return [...new Set(distances)].sort((a, b) => b - a);
+      distances.push(0);
+
+      return [...new Set(distances.map(d => Number(d.toFixed(1))))]
+        .sort((a, b) => b - a);
     }
 
     function calculate() {
@@ -221,7 +219,7 @@
 
         tableHTML += `
           <tr>
-            <td>${distance.toFixed(1)}</td>
+            <td>${distance.toFixed(1)} C</td>
             <td>${formatBearing(bearing)}°</td>
           </tr>
         `;
