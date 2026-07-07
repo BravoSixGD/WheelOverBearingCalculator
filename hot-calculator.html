@@ -41,58 +41,61 @@
     }
 
     .container {
-      width: min(100%, 980px);
+      width: min(100%, 900px);
       margin: 0 auto;
-      padding-top: clamp(20px, 5vh, 50px);
+      padding-top: 25px;
     }
 
     h1 {
       text-align: center;
-      font-size: clamp(24px, 6vw, 40px);
-      margin: 0 52px 24px;
+      font-size: clamp(25px, 5vw, 38px);
+      margin: 0 55px 25px 0;
     }
 
     .card {
-      background: #17212b;
-      border: 1px solid #263544;
-      border-radius: 16px;
-      padding: clamp(16px, 3vw, 24px);
+      background: #182633;
+      border-radius: 14px;
+      padding: clamp(16px, 4vw, 24px);
       margin-bottom: 18px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
     h2 {
-      margin: 0 0 16px;
+      margin: 0 0 15px;
       font-size: clamp(18px, 4vw, 24px);
       color: #ffffff;
+      border-bottom: 1px solid #35506a;
+      padding-bottom: 8px;
     }
 
-    .tide-grid {
+    .grid {
       display: grid;
-      grid-template-columns: 80px 1fr 1fr;
-      gap: 10px;
-      align-items: center;
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
 
-    .grid-head {
-      color: #bfc7cf;
-      font-size: 14px;
-      font-weight: bold;
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
     }
 
     label {
-      font-weight: bold;
-      color: #e8e8e8;
+      font-size: clamp(14px, 3vw, 16px);
+      color: #d8d8d8;
+      display: block;
+      margin-bottom: 6px;
     }
 
     input {
       width: 100%;
       padding: 14px;
       border-radius: 10px;
-      border: 1px solid #3b4b5a;
-      background: #0e1620;
+      border: 2px solid #2e465f;
+      background: #0f1a24;
       color: white;
-      font-size: 17px;
+      font-size: clamp(16px, 4vw, 20px);
       outline: none;
     }
 
@@ -100,47 +103,31 @@
       border-color: #1f6feb;
     }
 
-    .calculator-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-    }
-
     .go-btn {
       width: 100%;
+      padding: 16px;
       border: none;
       border-radius: 12px;
-      padding: 16px;
-      font-size: 20px;
-      font-weight: bold;
       color: white;
-      background: #b00020;
-      cursor: pointer;
-      margin-top: 6px;
+      font-size: clamp(20px, 5vw, 26px);
+      font-weight: bold;
+      background: red;
+      margin-top: 8px;
     }
 
-    .go-btn.ready {
-      background: #0a8f3c;
+    .go-btn.valid {
+      background: green;
     }
 
     .result {
-      margin-top: 16px;
-      padding: 14px;
+      background: #0f1a24;
       border-radius: 12px;
-      background: #0e1620;
-      border: 1px solid #2b3a48;
-      min-height: 52px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: clamp(16px, 3.5vw, 20px);
       line-height: 1.5;
-      font-size: 16px;
-    }
-
-    .success {
-      color: #ffffff;
+      white-space: pre-line;
+      border: 1px solid #2e465f;
     }
 
     .error {
@@ -148,39 +135,29 @@
       font-weight: bold;
     }
 
-    ul {
-      margin: 10px 0 0;
-      padding-left: 20px;
+    .success {
+      color: #b8ffb8;
+      font-weight: bold;
     }
 
-    li {
-      margin-bottom: 8px;
-    }
-
-    .small {
-      color: #bfc7cf;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    @media (min-width: 760px) {
-      .calculator-grid {
+    @media (min-width: 750px) {
+      .grid {
         grid-template-columns: 1fr 1fr;
       }
     }
 
-    @media (orientation: landscape) and (max-height: 520px) {
+    @media (orientation: landscape) and (max-height: 550px) {
       .container {
         padding-top: 8px;
       }
 
       h1 {
-        font-size: 26px;
         margin-bottom: 14px;
       }
 
       .card {
         padding: 14px;
+        margin-bottom: 12px;
       }
 
       input {
@@ -191,418 +168,412 @@
 </head>
 
 <body>
-  <a href="index.html" class="home-btn" aria-label="Back to Home">×</a>
+  <a href="index.html" class="home-btn">×</a>
 
-  <main class="container">
+  <div class="container">
     <h1>HOT and TOT Calculator</h1>
 
-    <section class="card">
-      <h2>Tide Table Entries</h2>
+    <div class="card">
+      <h2>Tide Table Data</h2>
 
-      <div class="tide-grid">
-        <div></div>
-        <div class="grid-head">Time</div>
-        <div class="grid-head">Height</div>
-
-        <label>HW 1</label>
-        <input id="hw1_time" type="text" inputmode="numeric" placeholder="0530">
-        <input id="hw1_height" type="number" step="0.01" placeholder="4.20">
-
-        <label>LW 1</label>
-        <input id="lw1_time" type="text" inputmode="numeric" placeholder="1130">
-        <input id="lw1_height" type="number" step="0.01" placeholder="1.10">
-
-        <label>HW 2</label>
-        <input id="hw2_time" type="text" inputmode="numeric" placeholder="1745">
-        <input id="hw2_height" type="number" step="0.01" placeholder="4.50">
-
-        <label>LW 2</label>
-        <input id="lw2_time" type="text" inputmode="numeric" placeholder="2355">
-        <input id="lw2_height" type="number" step="0.01" placeholder="0.90">
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Calculators</h2>
-
-      <div class="calculator-grid">
-        <div class="field">
-          <label for="wanted_time">Height of Tide at Time</label>
-          <input id="wanted_time" type="text" inputmode="numeric" placeholder="Enter time e.g. 1430">
+      <div class="grid">
+        <div class="row">
+          <div>
+            <label>HW 1 Time</label>
+            <input id="hw1Time" type="text" inputmode="numeric" placeholder="HHMM">
+          </div>
+          <div>
+            <label>HW 1 Height</label>
+            <input id="hw1Height" type="number" step="0.01" placeholder="m">
+          </div>
         </div>
 
-        <div class="field">
-          <label for="wanted_height">Time of Tide for Height</label>
-          <input id="wanted_height" type="number" step="0.01" placeholder="Enter height e.g. 2.70">
+        <div class="row">
+          <div>
+            <label>LW 1 Time</label>
+            <input id="lw1Time" type="text" inputmode="numeric" placeholder="HHMM">
+          </div>
+          <div>
+            <label>LW 1 Height</label>
+            <input id="lw1Height" type="number" step="0.01" placeholder="m">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>HW 2 Time</label>
+            <input id="hw2Time" type="text" inputmode="numeric" placeholder="HHMM">
+          </div>
+          <div>
+            <label>HW 2 Height</label>
+            <input id="hw2Height" type="number" step="0.01" placeholder="m">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>LW 2 Time</label>
+            <input id="lw2Time" type="text" inputmode="numeric" placeholder="HHMM">
+          </div>
+          <div>
+            <label>LW 2 Height</label>
+            <input id="lw2Height" type="number" step="0.01" placeholder="m">
+          </div>
         </div>
       </div>
+    </div>
 
-      <button id="goBtn" class="go-btn" onclick="calculateAll()">GO</button>
+    <div class="card">
+      <h2>Height of Tide Calculator</h2>
+      <label>Time for which HOT is required</label>
+      <input id="requiredTime" type="text" inputmode="numeric" placeholder="HHMM">
+    </div>
 
-      <div id="hotResult" class="result">Height of tide result will appear here.</div>
-      <div id="totResult" class="result">Time of tide result will appear here.</div>
+    <div class="card">
+      <h2>Time of Tide Calculator</h2>
+      <label>Height of Tide for which TOT is required</label>
+      <input id="requiredHeight" type="number" step="0.01" placeholder="m">
+    </div>
 
-      <div class="small">
-        Time format accepted: 0530 or 05:30. Height should be in metres.
-      </div>
-    </section>
-  </main>
+    <button id="goBtn" class="go-btn" onclick="calculate()">GO</button>
+
+    <div id="result" class="result">Enter tide data and required value.</div>
+  </div>
 
   <script>
-    const eventDefs = [
-      { id: "hw1", type: "HW", label: "HW 1" },
-      { id: "lw1", type: "LW", label: "LW 1" },
-      { id: "hw2", type: "HW", label: "HW 2" },
-      { id: "lw2", type: "LW", label: "LW 2" }
-    ];
-
+    const inputs = document.querySelectorAll("input");
     const goBtn = document.getElementById("goBtn");
-    const hotResult = document.getElementById("hotResult");
-    const totResult = document.getElementById("totResult");
+    const resultBox = document.getElementById("result");
 
-    document.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", updateButtonState);
+    inputs.forEach(input => {
+      input.addEventListener("input", validateForm);
     });
 
-    function parseTimeToMinutes(value) {
-      const raw = String(value).trim();
+    function parseTime(value) {
+      if (!value) return null;
 
-      if (raw === "") return null;
+      let clean = value.trim().replace(":", "");
 
-      let hours;
-      let minutes;
+      if (!/^\d{3,4}$/.test(clean)) return null;
 
-      if (raw.includes(":")) {
-        const parts = raw.split(":");
-        if (parts.length !== 2) return null;
+      clean = clean.padStart(4, "0");
 
-        hours = Number(parts[0]);
-        minutes = Number(parts[1]);
-      } else {
-        if (!/^\d{3,4}$/.test(raw)) return null;
+      const h = Number(clean.slice(0, 2));
+      const m = Number(clean.slice(2, 4));
 
-        const padded = raw.padStart(4, "0");
-        hours = Number(padded.slice(0, 2));
-        minutes = Number(padded.slice(2, 4));
-      }
+      if (h < 0 || h > 23 || m < 0 || m > 59) return null;
 
-      if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
-      if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
-
-      return hours * 60 + minutes;
+      return h * 60 + m;
     }
 
-    function parseHeight(value) {
-      const raw = String(value).trim();
-      if (raw === "") return null;
+    function formatTime(totalMinutes) {
+      totalMinutes = Math.round(totalMinutes);
+      totalMinutes = ((totalMinutes % 1440) + 1440) % 1440;
 
-      const number = Number(raw);
-      if (!Number.isFinite(number)) return null;
-
-      return number;
-    }
-
-    function formatClock(totalMinutes) {
-      let minutes = Math.round(totalMinutes);
-      minutes = ((minutes % 1440) + 1440) % 1440;
-
-      const h = Math.floor(minutes / 60);
-      const m = minutes % 60;
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
 
       return String(h).padStart(2, "0") + String(m).padStart(2, "0");
     }
 
-    function formatClockWithDay(totalMinutes) {
-      if (totalMinutes < 0) {
-        return formatClock(totalMinutes) + " previous day";
+    function readHeight(id) {
+      const value = document.getElementById(id).value;
+      if (value === "") return null;
+
+      const num = Number(value);
+      if (!Number.isFinite(num) || num < 0) return null;
+
+      return num;
+    }
+
+    function getEvents() {
+      const events = [
+        {
+          type: "HW",
+          label: "HW 1",
+          time: parseTime(document.getElementById("hw1Time").value),
+          height: readHeight("hw1Height")
+        },
+        {
+          type: "LW",
+          label: "LW 1",
+          time: parseTime(document.getElementById("lw1Time").value),
+          height: readHeight("lw1Height")
+        },
+        {
+          type: "HW",
+          label: "HW 2",
+          time: parseTime(document.getElementById("hw2Time").value),
+          height: readHeight("hw2Height")
+        },
+        {
+          type: "LW",
+          label: "LW 2",
+          time: parseTime(document.getElementById("lw2Time").value),
+          height: readHeight("lw2Height")
+        }
+      ];
+
+      for (const ev of events) {
+        if (ev.time === null || ev.height === null) {
+          return { valid: false, error: "Recheck the question: all HW/LW times and heights are required." };
+        }
       }
 
-      if (totalMinutes >= 1440) {
-        return formatClock(totalMinutes) + " next day";
+      events.sort((a, b) => a.time - b.time);
+
+      for (let i = 1; i < events.length; i++) {
+        if (events[i].time === events[i - 1].time) {
+          return { valid: false, error: "Recheck the question: duplicate tide times entered." };
+        }
       }
 
-      return formatClock(totalMinutes);
-    }
-
-    function formatDuration(minutes) {
-      const rounded = Math.round(minutes);
-      const h = Math.floor(rounded / 60);
-      const m = rounded % 60;
-
-      return `${h}h ${String(m).padStart(2, "0")}m`;
-    }
-
-    function clamp(value, minimum, maximum) {
-      return Math.min(Math.max(value, minimum), maximum);
-    }
-
-    function readEvents() {
-      const events = eventDefs.map(def => {
-        const time = parseTimeToMinutes(document.getElementById(def.id + "_time").value);
-        const height = parseHeight(document.getElementById(def.id + "_height").value);
-
-        if (time === null) {
-          throw new Error(`${def.label} time is invalid.`);
+      for (let i = 1; i < events.length; i++) {
+        if (events[i].type === events[i - 1].type) {
+          return { valid: false, error: "Recheck the question: HW and LW must alternate in time order." };
         }
+      }
 
-        if (height === null) {
-          throw new Error(`${def.label} height is invalid.`);
+      return { valid: true, events };
+    }
+
+    function tideCurveFraction(fractionOfTime) {
+      return 0.5 * (1 - Math.cos(Math.PI * fractionOfTime));
+    }
+
+    function reverseTideCurveFraction(heightFraction) {
+      return Math.acos(1 - (2 * heightFraction)) / Math.PI;
+    }
+
+    function findPeriodForTime(events, targetTime) {
+      for (let i = 0; i < events.length - 1; i++) {
+        if (targetTime >= events[i].time && targetTime <= events[i + 1].time) {
+          return {
+            start: events[i],
+            end: events[i + 1],
+            duration: events[i + 1].time - events[i].time
+          };
         }
+      }
 
+      return null;
+    }
+
+    function calculateHOT(events, targetTime) {
+      const period = findPeriodForTime(events, targetTime);
+
+      if (!period) {
         return {
-          type: def.type,
-          label: def.label,
-          time,
-          height
+          valid: false,
+          error: "Recheck the question: required time is outside the provided tide period."
         };
-      });
-
-      const sorted = events.sort((a, b) => a.time - b.time);
-
-      const usedTimes = new Set();
-      for (const event of sorted) {
-        if (usedTimes.has(event.time)) {
-          throw new Error("Two tide entries cannot have the same time.");
-        }
-        usedTimes.add(event.time);
       }
 
-      return sorted;
-    }
+      const start = period.start;
+      const end = period.end;
+      const duration = period.duration;
+      const elapsed = targetTime - start.time;
 
-    function cloneEvent(event, timeShift) {
+      if (duration <= 0) {
+        return {
+          valid: false,
+          error: "Recheck the question: invalid tide duration."
+        };
+      }
+
+      const range = Math.abs(end.height - start.height);
+      const fractionOfTime = elapsed / duration;
+      const correction = range * tideCurveFraction(fractionOfTime);
+
+      let height;
+
+      if (end.height > start.height) {
+        height = start.height + correction;
+      } else {
+        height = start.height - correction;
+      }
+
       return {
-        type: event.type,
-        label: event.label,
-        time: event.time + timeShift,
-        height: event.height
+        valid: true,
+        text:
+          "Height of Tide Result\n" +
+          "Required Time: " + formatTime(targetTime) + "\n" +
+          "Tide Period: " + start.label + " " + formatTime(start.time) + " to " + end.label + " " + formatTime(end.time) + "\n" +
+          "Range: " + range.toFixed(2) + " m\n" +
+          "Height of Tide: " + height.toFixed(2) + " m"
       };
     }
 
-    function buildIntervals(events) {
-      const intervals = [];
-      const first = events[0];
-      const last = events[events.length - 1];
+    function calculateTOT(events, requiredHeight) {
+      const minHeight = Math.min(...events.map(e => e.height));
+      const maxHeight = Math.max(...events.map(e => e.height));
 
-      intervals.push({
-        start: cloneEvent(last, -1440),
-        end: cloneEvent(first, 0)
-      });
-
-      for (let i = 0; i < events.length - 1; i++) {
-        intervals.push({
-          start: cloneEvent(events[i], 0),
-          end: cloneEvent(events[i + 1], 0)
-        });
-      }
-
-      intervals.push({
-        start: cloneEvent(last, 0),
-        end: cloneEvent(first, 1440)
-      });
-
-      return intervals.filter(interval => interval.end.time > interval.start.time);
-    }
-
-    function heightAtTime(interval, wantedMinutes) {
-      const duration = interval.end.time - interval.start.time;
-      const elapsed = wantedMinutes - interval.start.time;
-      const fraction = clamp(elapsed / duration, 0, 1);
-
-      const range = Math.abs(interval.end.height - interval.start.height);
-      const correction = range * (1 - Math.cos(Math.PI * fraction)) / 2;
-
-      if (interval.end.height > interval.start.height) {
-        return interval.start.height + correction;
-      }
-
-      return interval.start.height - correction;
-    }
-
-    function timeForHeight(interval, wantedHeight) {
-      const startHeight = interval.start.height;
-      const endHeight = interval.end.height;
-      const range = Math.abs(endHeight - startHeight);
-
-      if (range === 0) return null;
-
-      const lowest = Math.min(startHeight, endHeight);
-      const highest = Math.max(startHeight, endHeight);
-
-      if (wantedHeight < lowest - 0.000001 || wantedHeight > highest + 0.000001) {
-        return null;
-      }
-
-      let correction;
-
-      if (endHeight > startHeight) {
-        correction = wantedHeight - startHeight;
-      } else {
-        correction = startHeight - wantedHeight;
-      }
-
-      const ratio = clamp(correction / range, 0, 1);
-      const fraction = Math.acos(1 - 2 * ratio) / Math.PI;
-
-      return interval.start.time + fraction * (interval.end.time - interval.start.time);
-    }
-
-    function intervalText(interval) {
-      const direction = interval.end.height > interval.start.height ? "Rising" : "Falling";
-      const range = Math.abs(interval.end.height - interval.start.height);
-
-      return `${direction}, ${interval.start.type} ${formatClockWithDay(interval.start.time)} to ${interval.end.type} ${formatClockWithDay(interval.end.time)}, Range ${range.toFixed(2)} m`;
-    }
-
-    function calculateAll() {
-      hotResult.innerHTML = "Height of tide result will appear here.";
-      totResult.innerHTML = "Time of tide result will appear here.";
-
-      let events;
-      let intervals;
-
-      try {
-        events = readEvents();
-        intervals = buildIntervals(events);
-      } catch (error) {
-        hotResult.innerHTML = `<div class="error">${error.message}</div>`;
-        totResult.innerHTML = `<div class="error">${error.message}</div>`;
-        updateButtonState();
-        return;
-      }
-
-      calculateHOT(intervals);
-      calculateTOT(intervals);
-      updateButtonState();
-    }
-
-    function calculateHOT(intervals) {
-      const wantedTimeRaw = document.getElementById("wanted_time").value.trim();
-
-      if (wantedTimeRaw === "") {
-        hotResult.innerHTML = "Height of tide result will appear here.";
-        return;
-      }
-
-      const wantedMinutes = parseTimeToMinutes(wantedTimeRaw);
-
-      if (wantedMinutes === null) {
-        hotResult.innerHTML = `<div class="error">Enter valid time for Height of Tide.</div>`;
-        return;
-      }
-
-      const interval = intervals.find(item =>
-        wantedMinutes >= item.start.time && wantedMinutes <= item.end.time
-      );
-
-      if (!interval) {
-        hotResult.innerHTML = `<div class="error">The entered time is not between the given tide periods.</div>`;
-        return;
-      }
-
-      const height = heightAtTime(interval, wantedMinutes);
-
-      hotResult.innerHTML = `
-        <div class="success">
-          <strong>Height of Tide at ${formatClock(wantedMinutes)}:</strong>
-          ${height.toFixed(2)} m
-          <div class="small">${intervalText(interval)}</div>
-        </div>
-      `;
-    }
-
-    function calculateTOT(intervals) {
-      const wantedHeightRaw = document.getElementById("wanted_height").value.trim();
-
-      if (wantedHeightRaw === "") {
-        totResult.innerHTML = "Time of tide result will appear here.";
-        return;
-      }
-
-      const wantedHeight = parseHeight(wantedHeightRaw);
-
-      if (wantedHeight === null) {
-        totResult.innerHTML = `<div class="error">Enter valid height for Time of Tide.</div>`;
-        return;
+      if (requiredHeight < minHeight || requiredHeight > maxHeight) {
+        return {
+          valid: false,
+          error: "Recheck the question: required HOT is outside the provided height range."
+        };
       }
 
       const results = [];
-      const seen = new Set();
+      const usedTimes = new Set();
 
-      for (const interval of intervals) {
-        const tideTime = timeForHeight(interval, wantedHeight);
+      for (let i = 0; i < events.length - 1; i++) {
+        const start = events[i];
+        const end = events[i + 1];
 
-        if (tideTime === null) continue;
-        if (tideTime < 0) continue;
+        const low = Math.min(start.height, end.height);
+        const high = Math.max(start.height, end.height);
 
-        const roundedTime = Math.round(tideTime);
-        const key = roundedTime + "-" + interval.start.time + "-" + interval.end.time;
+        if (requiredHeight < low || requiredHeight > high) {
+          continue;
+        }
 
-        if (seen.has(key)) continue;
-        seen.add(key);
+        const range = Math.abs(end.height - start.height);
 
-        results.push({
-          time: tideTime,
-          interval
-        });
+        if (range === 0) continue;
+
+        let correction;
+
+        if (end.height > start.height) {
+          correction = requiredHeight - start.height;
+        } else {
+          correction = start.height - requiredHeight;
+        }
+
+        const heightFraction = correction / range;
+
+        if (heightFraction < 0 || heightFraction > 1) {
+          continue;
+        }
+
+        const timeFraction = reverseTideCurveFraction(heightFraction);
+        const requiredTime = start.time + (timeFraction * (end.time - start.time));
+        const roundedTime = formatTime(requiredTime);
+
+        if (!usedTimes.has(roundedTime)) {
+          usedTimes.add(roundedTime);
+
+          results.push(
+            "Time: " + roundedTime + "\n" +
+            "Period: " + start.label + " " + formatTime(start.time) + " to " + end.label + " " + formatTime(end.time) + "\n" +
+            "Tide: " + (end.height > start.height ? "Rising" : "Falling")
+          );
+        }
       }
 
       if (results.length === 0) {
-        totResult.innerHTML = `
-          <div class="error">
-            Height ${wantedHeight.toFixed(2)} m does not occur between the given tide periods.
-          </div>
-        `;
+        return {
+          valid: false,
+          error: "Recheck the question: required HOT does not occur within the provided tide periods."
+        };
+      }
+
+      return {
+        valid: true,
+        text:
+          "Time of Tide Result\n" +
+          "Required HOT: " + requiredHeight.toFixed(2) + " m\n\n" +
+          results.join("\n\n")
+      };
+    }
+
+    function validateForm() {
+      const check = runValidationOnly();
+
+      if (check.valid) {
+        goBtn.classList.add("valid");
+      } else {
+        goBtn.classList.remove("valid");
+      }
+    }
+
+    function runValidationOnly() {
+      const eventData = getEvents();
+
+      if (!eventData.valid) {
+        return { valid: false, error: eventData.error };
+      }
+
+      const events = eventData.events;
+
+      const requiredTimeValue = document.getElementById("requiredTime").value.trim();
+      const requiredHeightValue = document.getElementById("requiredHeight").value.trim();
+
+      if (requiredTimeValue === "" && requiredHeightValue === "") {
+        return {
+          valid: false,
+          error: "Enter either required time for HOT or required height for TOT."
+        };
+      }
+
+      if (requiredTimeValue !== "") {
+        const targetTime = parseTime(requiredTimeValue);
+
+        if (targetTime === null) {
+          return {
+            valid: false,
+            error: "Recheck the question: required time format must be HHMM."
+          };
+        }
+
+        const hotCheck = calculateHOT(events, targetTime);
+
+        if (!hotCheck.valid) {
+          return hotCheck;
+        }
+      }
+
+      if (requiredHeightValue !== "") {
+        const requiredHeight = Number(requiredHeightValue);
+
+        if (!Number.isFinite(requiredHeight) || requiredHeight < 0) {
+          return {
+            valid: false,
+            error: "Recheck the question: required HOT must be a valid height."
+          };
+        }
+
+        const totCheck = calculateTOT(events, requiredHeight);
+
+        if (!totCheck.valid) {
+          return totCheck;
+        }
+      }
+
+      return { valid: true };
+    }
+
+    function calculate() {
+      const validation = runValidationOnly();
+
+      if (!validation.valid) {
+        resultBox.innerHTML = '<span class="error">' + validation.error + '</span>';
+        goBtn.classList.remove("valid");
         return;
       }
 
-      results.sort((a, b) => a.time - b.time);
+      const events = getEvents().events;
+      const output = [];
 
-      const listItems = results.map(result => {
-        const elapsedFromStart = result.time - result.interval.start.time;
+      const requiredTimeValue = document.getElementById("requiredTime").value.trim();
+      const requiredHeightValue = document.getElementById("requiredHeight").value.trim();
 
-        return `
-          <li>
-            <strong>${formatClockWithDay(result.time)}</strong>
-            <div class="small">
-              ${intervalText(result.interval)}<br>
-              Interval from ${result.interval.start.type}: ${formatDuration(elapsedFromStart)}
-            </div>
-          </li>
-        `;
-      }).join("");
-
-      totResult.innerHTML = `
-        <div class="success">
-          <strong>Time of Tide for ${wantedHeight.toFixed(2)} m:</strong>
-          <ul>${listItems}</ul>
-        </div>
-      `;
-    }
-
-    function updateButtonState() {
-      let commonInputsValid = true;
-
-      try {
-        readEvents();
-      } catch {
-        commonInputsValid = false;
+      if (requiredTimeValue !== "") {
+        const targetTime = parseTime(requiredTimeValue);
+        output.push(calculateHOT(events, targetTime).text);
       }
 
-      const wantedTimeRaw = document.getElementById("wanted_time").value.trim();
-      const wantedHeightRaw = document.getElementById("wanted_height").value.trim();
-
-      const wantedTimeValid = wantedTimeRaw !== "" && parseTimeToMinutes(wantedTimeRaw) !== null;
-      const wantedHeightValid = wantedHeightRaw !== "" && parseHeight(wantedHeightRaw) !== null;
-
-      if (commonInputsValid && (wantedTimeValid || wantedHeightValid)) {
-        goBtn.classList.add("ready");
-      } else {
-        goBtn.classList.remove("ready");
+      if (requiredHeightValue !== "") {
+        const requiredHeight = Number(requiredHeightValue);
+        output.push(calculateTOT(events, requiredHeight).text);
       }
+
+      resultBox.innerHTML = '<span class="success">' + output.join("\n\n-------------------------\n\n") + '</span>';
+      goBtn.classList.add("valid");
     }
 
-    updateButtonState();
+    validateForm();
   </script>
 </body>
 </html>
