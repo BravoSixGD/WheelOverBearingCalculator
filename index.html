@@ -1,24 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Main Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigator's Assistant</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101820;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding-top: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #cfcfcf;
+      margin-bottom: 30px;
+      font-size: 15px;
+    }
+
+    .menu {
+      display: grid;
+      gap: 14px;
+    }
+
+    .menu a {
+      display: block;
+      text-decoration: none;
+      background: #1f6feb;
+      color: white;
+      padding: 18px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+
+    .menu a:active {
+      transform: scale(0.98);
+    }
+
+    .section-title {
+      margin-top: 28px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: #d0d0d0;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+    }
+
+    .test-link {
+      background: #555 !important;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="container">
+    <h1>Navigator's Assistant</h1>
+    <div class="subtitle">Offline HTML Navigation Tools</div>
 
-    <h1>Main Homepage</h1>
+    <div class="section-title">Navigation Calculators</div>
 
-    <button onclick="openPage1()">Open Page 1</button>
-    <button onclick="openPage2()">Open Page 2</button>
+    <div class="menu">
+      <a href="wheel-over-bearing-calculator.html">Wheel Over Bearing Calculator</a>
+      <a href="hot-calculator.html">HOT and TOT Calculator</a>
+    </div>
 
-    <script>
-        function openPage1() {
-            window.location.href = "page1.html";
-        }
+    <div class="section-title">Test Pages</div>
 
-        function openPage2() {
-            window.location.href = "page2.html";
-        }
-    </script>
-
+    <div class="menu">
+      <a class="test-link" href="page1.html">Test Page 1</a>
+      <a class="test-link" href="page2.html">Test Page 2</a>
+    </div>
+  </div>
 </body>
 </html>
