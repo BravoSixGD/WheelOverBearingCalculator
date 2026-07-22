@@ -66,6 +66,30 @@
       color: var(--text-main);
     }
 
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .action-btn {
+      width: 100%;
+      min-height: 52px;
+      border: none;
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 18px;
+      font-weight: bold;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     .graph-scroll {
       width: 100%;
       overflow: auto;
@@ -76,11 +100,19 @@
       padding: 10px;
     }
 
+    .a4-sheet {
+      width: 297mm;
+      height: 210mm;
+      background: #dff2d8;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.45);
+    }
+
     .ras-svg {
       display: block;
-      max-width: none;
+      width: 297mm;
+      height: 210mm;
       background: #dff2d8;
-      border: 1px solid #356b35;
     }
 
     .note {
@@ -96,7 +128,58 @@
       }
 
       .summary-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .action-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+
+      body * {
+        visibility: hidden;
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible;
+      }
+
+      #printArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 297mm;
+        height: 210mm;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background: #dff2d8;
+        box-shadow: none;
+      }
+
+      .a4-sheet {
+        width: 297mm;
+        height: 210mm;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      .ras-svg {
+        width: 297mm;
+        height: 210mm;
       }
     }
   </style>
@@ -205,6 +288,16 @@
 
       <button id="goBtn" class="go-btn" type="button">GO</button>
 
+      <div class="action-grid">
+        <button id="printBtn" class="action-btn" type="button" disabled>
+          Print A4 Graph
+        </button>
+
+        <button id="saveBtn" class="action-btn" type="button" disabled>
+          Save as Image
+        </button>
+      </div>
+
       <div id="result" class="result">
         Enter ship data and approach data to generate RAS graph.
       </div>
@@ -215,6 +308,8 @@
     "use strict";
 
     const goBtn = document.getElementById("goBtn");
+    const printBtn = document.getElementById("printBtn");
+    const saveBtn = document.getElementById("saveBtn");
     const resultBox = document.getElementById("result");
 
     const inputIds = [
@@ -240,6 +335,8 @@
       });
 
     goBtn.addEventListener("click", calculate);
+    printBtn.addEventListener("click", printGraph);
+    saveBtn.addEventListener("click", saveGraphAsImage);
 
     function valueOf(id) {
       return Number(document.getElementById(id).value);
@@ -349,7 +446,14 @@
     }
 
     function updateButton() {
-      goBtn.classList.toggle("valid", isValid());
+      const valid = isValid();
+
+      goBtn.classList.toggle("valid", valid);
+
+      if (!valid) {
+        printBtn.disabled = true;
+        saveBtn.disabled = true;
+      }
     }
 
     function niceCeiling(value) {
@@ -364,6 +468,14 @@
       if (normal <= 5) return 5 * base;
 
       return 10 * base;
+    }
+
+    function toMmX(valueM, minX, scaleMPerCm, marginMm) {
+      return marginMm + ((valueM - minX) / scaleMPerCm) * 10;
+    }
+
+    function toMmY(valueM, minY, scaleMPerCm, marginMm) {
+      return marginMm + ((valueM - minY) / scaleMPerCm) * 10;
     }
 
     function makeLine(x1, y1, x2, y2, stroke, width, dash = "") {
@@ -407,6 +519,46 @@
       `;
     }
 
+    function renderGrid() {
+      let grid = `
+        <rect
+          x="0"
+          y="0"
+          width="297"
+          height="210"
+          fill="#dff2d8"
+        />
+      `;
+
+      for (let x = 0; x <= 297; x += 1) {
+        const isMajor = x % 10 === 0;
+
+        grid += makeLine(
+          x,
+          0,
+          x,
+          210,
+          isMajor ? "#3b873b" : "#91c891",
+          isMajor ? 0.18 : 0.06
+        );
+      }
+
+      for (let y = 0; y <= 210; y += 1) {
+        const isMajor = y % 10 === 0;
+
+        grid += makeLine(
+          0,
+          y,
+          297,
+          y,
+          isMajor ? "#3b873b" : "#91c891",
+          isMajor ? 0.18 : 0.06
+        );
+      }
+
+      return grid;
+    }
+
     function renderShip(options) {
       const {
         cx,
@@ -419,15 +571,14 @@
         rasSide,
         fill,
         stroke,
-        dash,
-        mPerCm
+        scaleMPerCm
       } = options;
 
       const halfBeam = beam / 2;
-      const normalStroke = mPerCm / 25;
-      const thinStroke = mPerCm / 45;
-      const labelSize = Math.max(mPerCm * 0.32, 2.5);
-      const smallSize = Math.max(mPerCm * 0.24, 2.2);
+      const normalStroke = 0.55;
+      const thinStroke = 0.25;
+      const labelSize = 4.2;
+      const smallSize = 3.1;
 
       const rasX =
         rasSide === "right"
@@ -439,8 +590,8 @@
 
       const rasLabelX =
         rasSide === "right"
-          ? rasX + mPerCm * 0.35
-          : rasX - mPerCm * 0.35;
+          ? rasX + (scaleMPerCm * 0.8)
+          : rasX - (scaleMPerCm * 0.8);
 
       const rasLabelAnchor =
         rasSide === "right"
@@ -453,7 +604,6 @@
           fill="${fill}"
           stroke="${stroke}"
           stroke-width="${normalStroke}"
-          ${dash ? `stroke-dasharray="${dash}"` : ""}
         />
 
         ${makeLine(
@@ -463,7 +613,7 @@
           stemY + loa,
           stroke,
           thinStroke,
-          "4 4"
+          "2 2"
         )}
 
         ${makeLine(
@@ -477,15 +627,7 @@
 
         ${makeText(
           cx,
-          stemY - (mPerCm * 0.25),
-          "STEM",
-          smallSize,
-          "middle"
-        )}
-
-        ${makeText(
-          cx,
-          stemY + loa + (mPerCm * 0.5),
+          stemY + loa + (scaleMPerCm * 1.0),
           label,
           labelSize,
           "middle"
@@ -493,7 +635,7 @@
 
         ${makeText(
           cx,
-          standardY - (mPerCm * 0.15),
+          standardY - (scaleMPerCm * 0.25),
           "STANDARD",
           smallSize,
           "middle"
@@ -502,13 +644,13 @@
         <circle
           cx="${rasX}"
           cy="${rasY}"
-          r="${Math.max(mPerCm * 0.10, 1.2)}"
+          r="${Math.max(scaleMPerCm * 0.13, 1.4)}"
           fill="#111"
         />
 
         ${makeText(
           rasLabelX,
-          rasY - (mPerCm * 0.15),
+          rasY - (scaleMPerCm * 0.25),
           "RAS POINT",
           smallSize,
           rasLabelAnchor
@@ -516,61 +658,16 @@
       `;
     }
 
-    function renderGrid(minX, minY, maxX, maxY, mPerCm) {
-      const major = mPerCm;
-      const minor = mPerCm / 10;
-      const thinStroke = mPerCm / 150;
-      const majorStroke = mPerCm / 65;
-
-      let grid = `
-        <rect
-          x="${minX}"
-          y="${minY}"
-          width="${maxX - minX}"
-          height="${maxY - minY}"
-          fill="#dff2d8"
-        />
-      `;
-
-      const startX = Math.floor(minX / minor) * minor;
-      const endX = Math.ceil(maxX / minor) * minor;
-      const startY = Math.floor(minY / minor) * minor;
-      const endY = Math.ceil(maxY / minor) * minor;
-
-      for (let x = startX; x <= endX; x += minor) {
-        const isMajor =
-          Math.abs((x / major) - Math.round(x / major)) < 0.0001;
-
-        grid += makeLine(
-          x,
-          minY,
-          x,
-          maxY,
-          isMajor ? "#3b873b" : "#91c891",
-          isMajor ? majorStroke : thinStroke
-        );
-      }
-
-      for (let y = startY; y <= endY; y += minor) {
-        const isMajor =
-          Math.abs((y / major) - Math.round(y / major)) < 0.0001;
-
-        grid += makeLine(
-          minX,
-          y,
-          maxX,
-          y,
-          isMajor ? "#3b873b" : "#91c891",
-          isMajor ? majorStroke : thinStroke
-        );
-      }
-
-      return grid;
-    }
-
     function renderGraph(data) {
       const r = data.receiving;
       const d = data.delivery;
+
+      const a4WidthMm = 297;
+      const a4HeightMm = 210;
+      const marginMm = 12;
+
+      const usableWidthCm = (a4WidthMm - (2 * marginMm)) / 10;
+      const usableHeightCm = (a4HeightMm - (2 * marginMm)) / 10;
 
       const speedAdvantage =
         data.approachSpeed - data.rasSpeed;
@@ -598,176 +695,167 @@
       const receivingOrderStemY =
         deliveryRasY + surgeDistance - r.ras;
 
-      const margin =
-        Math.max(20, Math.max(r.beam, d.beam, data.lateralSeparationM) * 0.65);
+      const marginM =
+        Math.max(
+          20,
+          Math.max(r.beam, d.beam, data.lateralSeparationM) * 0.65
+        );
 
       const minX =
         Math.min(
           receivingCx - r.beam / 2,
           deliveryCx - d.beam / 2
-        ) - margin;
+        ) - marginM;
 
       const maxX =
         Math.max(
           receivingCx + r.beam / 2,
           deliveryCx + d.beam / 2
-        ) + margin;
+        ) + marginM;
 
       const minY =
         Math.min(
           deliveryStemY,
           receivingOrderStemY,
           receivingFinalStemY
-        ) - margin;
+        ) - marginM;
 
       const maxY =
         Math.max(
           deliveryStemY + d.loa,
           receivingOrderStemY + r.loa,
           receivingFinalStemY + r.loa
-        ) + margin;
+        ) + marginM;
 
       const graphWidthM = maxX - minX;
       const graphHeightM = maxY - minY;
 
-      const mPerCm =
+      const scaleMPerCm =
         niceCeiling(
           Math.max(
-            graphWidthM / 25,
-            graphHeightM / 32
+            graphWidthM / usableWidthCm,
+            graphHeightM / usableHeightCm
           )
         );
 
-      const widthCm = graphWidthM / mPerCm;
-      const heightCm = graphHeightM / mPerCm;
+      function x(valueM) {
+        return toMmX(valueM, minX, scaleMPerCm, marginMm);
+      }
 
-      const normalStroke = mPerCm / 25;
-      const thinStroke = mPerCm / 45;
-      const labelSize = Math.max(mPerCm * 0.32, 2.8);
-      const smallSize = Math.max(mPerCm * 0.24, 2.2);
+      function y(valueM) {
+        return toMmY(valueM, minY, scaleMPerCm, marginMm);
+      }
 
-      const receivingRasX = receivingCx + r.beam / 2;
+      function convertShip(ship, cxM, stemYM, label, side, fill, stroke) {
+        return renderShip({
+          cx: x(cxM),
+          stemY: y(stemYM),
+          loa: (ship.loa / scaleMPerCm) * 10,
+          beam: (ship.beam / scaleMPerCm) * 10,
+          standard: (ship.standard / scaleMPerCm) * 10,
+          ras: (ship.ras / scaleMPerCm) * 10,
+          label,
+          rasSide: side,
+          fill,
+          stroke,
+          scaleMPerCm: (scaleMPerCm / scaleMPerCm) * 10
+        });
+      }
+
+      const receivingRasX =
+        x(receivingCx + r.beam / 2);
+
       const receivingRasYOrder =
-        receivingOrderStemY + r.ras;
+        y(receivingOrderStemY + r.ras);
 
       const receivingRasYFinal =
-        receivingFinalStemY + r.ras;
+        y(receivingFinalStemY + r.ras);
 
       const deliveryRasX =
-        deliveryCx - d.beam / 2;
+        x(deliveryCx - d.beam / 2);
+
+      const deliveryRasYmm =
+        y(deliveryRasY);
 
       const lateralDimY =
-        deliveryRasY - (mPerCm * 0.65);
+        deliveryRasYmm - 12;
 
       const surgeDimX =
-        receivingRasX +
-        Math.max(data.lateralSeparationM * 0.35, mPerCm * 0.8);
+        receivingRasX + Math.max(15, (data.lateralSeparationM / scaleMPerCm) * 4);
 
       const svg = `
         <svg
+          id="rasSvg"
           class="ras-svg"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="${minX} ${minY} ${graphWidthM} ${graphHeightM}"
-          style="width:${widthCm.toFixed(2)}cm; height:${heightCm.toFixed(2)}cm;"
+          width="297mm"
+          height="210mm"
+          viewBox="0 0 297 210"
         >
           <defs>
             <marker
               id="arrowEnd"
-              markerWidth="8"
-              markerHeight="8"
-              refX="8"
-              refY="4"
+              markerWidth="5"
+              markerHeight="5"
+              refX="5"
+              refY="2.5"
               orient="auto"
               markerUnits="strokeWidth"
             >
-              <path d="M 0 0 L 8 4 L 0 8 Z" fill="#111" />
+              <path d="M 0 0 L 5 2.5 L 0 5 Z" fill="#111" />
             </marker>
 
             <marker
               id="arrowStart"
-              markerWidth="8"
-              markerHeight="8"
+              markerWidth="5"
+              markerHeight="5"
               refX="0"
-              refY="4"
+              refY="2.5"
               orient="auto"
               markerUnits="strokeWidth"
             >
-              <path d="M 8 0 L 0 4 L 8 8 Z" fill="#111" />
+              <path d="M 5 0 L 0 2.5 L 5 5 Z" fill="#111" />
             </marker>
           </defs>
 
-          ${renderGrid(minX, minY, maxX, maxY, mPerCm)}
+          ${renderGrid()}
 
-          ${renderShip({
-            cx: deliveryCx,
-            stemY: deliveryStemY,
-            loa: d.loa,
-            beam: d.beam,
-            standard: d.standard,
-            ras: d.ras,
-            label: "DELIVERY SHIP",
-            rasSide: "left",
-            fill: "#fff3dc",
-            stroke: "#1a1a1a",
-            dash: "",
-            mPerCm
-          })}
+          ${convertShip(
+            d,
+            deliveryCx,
+            deliveryStemY,
+            "Delivery ship",
+            "left",
+            "#fff3dc",
+            "#1a1a1a"
+          )}
 
-          ${renderShip({
-            cx: receivingCx,
-            stemY: receivingFinalStemY,
-            loa: r.loa,
-            beam: r.beam,
-            standard: r.standard,
-            ras: r.ras,
-            label: "FINAL RAS ALIGNMENT",
-            rasSide: "right",
-            fill: "rgba(255,255,255,0.15)",
-            stroke: "#555",
-            dash: "8 6",
-            mPerCm
-          })}
-
-          ${renderShip({
-            cx: receivingCx,
-            stemY: receivingOrderStemY,
-            loa: r.loa,
-            beam: r.beam,
-            standard: r.standard,
-            ras: r.ras,
-            label: "RECEIVING SHIP - ORDER DOWN POSITION",
-            rasSide: "right",
-            fill: "#dbeaff",
-            stroke: "#1a1a1a",
-            dash: "",
-            mPerCm
-          })}
-
-          ${makeLine(
-            receivingCx + r.beam / 2,
-            lateralDimY,
-            deliveryCx - d.beam / 2,
-            lateralDimY,
-            "#111",
-            normalStroke
+          ${convertShip(
+            r,
+            receivingCx,
+            receivingOrderStemY,
+            "Receiving ship",
+            "right",
+            "#dbeaff",
+            "#1a1a1a"
           )}
 
           <line
-            x1="${receivingCx + r.beam / 2}"
+            x1="${x(receivingCx + r.beam / 2)}"
             y1="${lateralDimY}"
-            x2="${deliveryCx - d.beam / 2}"
+            x2="${x(deliveryCx - d.beam / 2)}"
             y2="${lateralDimY}"
             stroke="#111"
-            stroke-width="${normalStroke}"
+            stroke-width="0.45"
             marker-start="url(#arrowStart)"
             marker-end="url(#arrowEnd)"
           />
 
           ${makeText(
-            (receivingCx + r.beam / 2 + deliveryCx - d.beam / 2) / 2,
-            lateralDimY - (mPerCm * 0.25),
+            (x(receivingCx + r.beam / 2) + x(deliveryCx - d.beam / 2)) / 2,
+            lateralDimY - 3,
             `Z = ${formatNumber(data.lateralSeparationM, 1)} m`,
-            smallSize
+            3.2
           )}
 
           <line
@@ -776,7 +864,7 @@
             x2="${surgeDimX}"
             y2="${receivingRasYFinal}"
             stroke="#111"
-            stroke-width="${normalStroke}"
+            stroke-width="0.45"
             marker-start="url(#arrowStart)"
             marker-end="url(#arrowEnd)"
           />
@@ -787,8 +875,8 @@
             surgeDimX,
             receivingRasYOrder,
             "#111",
-            thinStroke,
-            "5 5"
+            0.25,
+            "2 2"
           )}
 
           ${makeLine(
@@ -797,15 +885,15 @@
             surgeDimX,
             receivingRasYFinal,
             "#111",
-            thinStroke,
-            "5 5"
+            0.25,
+            "2 2"
           )}
 
           ${makeText(
-            surgeDimX + (mPerCm * 0.35),
+            surgeDimX + 3,
             (receivingRasYOrder + receivingRasYFinal) / 2,
             `S = ${formatNumber(surgeDistance, 1)} m`,
-            smallSize,
+            3.2,
             "start"
           )}
 
@@ -813,35 +901,44 @@
             receivingRasX,
             receivingRasYFinal,
             deliveryRasX,
-            deliveryRasY,
+            deliveryRasYmm,
             "#111",
-            thinStroke,
-            "5 5"
+            0.3,
+            "2 2"
           )}
 
+          <circle
+            cx="${receivingRasX}"
+            cy="${receivingRasYFinal}"
+            r="1.2"
+            fill="none"
+            stroke="#111"
+            stroke-width="0.35"
+            stroke-dasharray="1 1"
+          />
+
           ${makeText(
-            minX + (mPerCm * 0.5),
-            minY + (mPerCm * 0.8),
-            `Scale: 1 cm = ${formatNumber(mPerCm, 2)} m`,
-            labelSize,
+            12,
+            9,
+            `Scale: 1 cm = ${formatNumber(scaleMPerCm, 2)} m`,
+            4,
             "start"
           )}
 
           ${makeText(
-            minX + (mPerCm * 0.5),
-            minY + (mPerCm * 1.3),
-            `Minor grid: 1 mm = ${formatNumber(mPerCm / 10, 2)} m`,
-            smallSize,
+            12,
+            14,
+            `1 mm = ${formatNumber(scaleMPerCm / 10, 2)} m`,
+            3.2,
             "start"
           )}
 
           ${makeText(
-            maxX - (mPerCm * 0.5),
-            minY + (mPerCm * 0.8),
-            "Not to be used for navigation without verification",
-            smallSize,
-            "end",
-            "#7a1f1f"
+            285,
+            9,
+            "RAS Approach Graph",
+            4,
+            "end"
           )}
         </svg>
       `;
@@ -851,14 +948,17 @@
         surgeDistance,
         surgeRateMPerKn,
         speedAdvantage,
-        centrelineSeparation,
-        mPerCm
+        lateralSeparationM: data.lateralSeparationM,
+        scaleMPerCm
       };
     }
 
     function showWarning(message) {
       resultBox.innerHTML =
         `<span class="warning">${message}</span>`;
+
+      printBtn.disabled = true;
+      saveBtn.disabled = true;
     }
 
     function calculate() {
@@ -886,11 +986,6 @@
             <div class="summary-label">Surge distance S</div>
             <div class="summary-value">${formatMeters(graph.surgeDistance)}</div>
           </div>
-
-          <div class="summary-box">
-            <div class="summary-label">Centreline separation</div>
-            <div class="summary-value">${formatMeters(graph.centrelineSeparation)}</div>
-          </div>
         </div>
 
         <div class="note">
@@ -900,17 +995,91 @@
         </div>
 
         <div class="graph-scroll">
-          ${graph.svg}
+          <div id="printArea" class="a4-sheet">
+            ${graph.svg}
+          </div>
         </div>
 
         <div class="note">
-          Scale used: 1 cm = ${formatNumber(graph.mPerCm, 2)} m.
-          The green graph paper uses 1 cm major blocks and 1 mm minor divisions.
+          A4 graph generated in landscape format. Scale used:
+          1 cm = ${formatNumber(graph.scaleMPerCm, 2)} m.
         </div>
       `;
 
       resultBox.innerHTML = output;
+
+      printBtn.disabled = false;
+      saveBtn.disabled = false;
+
       updateButton();
+    }
+
+    function printGraph() {
+      const svg = document.getElementById("rasSvg");
+
+      if (!svg) {
+        showWarning("Generate the graph before printing.");
+        return;
+      }
+
+      window.print();
+    }
+
+    function saveGraphAsImage() {
+      const svg = document.getElementById("rasSvg");
+
+      if (!svg) {
+        showWarning("Generate the graph before saving.");
+        return;
+      }
+
+      const serializer = new XMLSerializer();
+      const svgText = serializer.serializeToString(svg);
+
+      const svgBlob = new Blob(
+        [svgText],
+        {
+          type: "image/svg+xml;charset=utf-8"
+        }
+      );
+
+      const url = URL.createObjectURL(svgBlob);
+
+      const image = new Image();
+
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+
+        canvas.width = 3508;
+        canvas.height = 2480;
+
+        const context = canvas.getContext("2d");
+
+        context.fillStyle = "#dff2d8";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.drawImage(
+          image,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        URL.revokeObjectURL(url);
+
+        const pngUrl = canvas.toDataURL("image/png");
+
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = "ras-approach-graph.png";
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+
+      image.src = url;
     }
 
     updateButton();
